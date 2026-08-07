@@ -68,7 +68,7 @@ export class AuthService {
                     break
             }
         } catch (error) {
-            console.error('Email sending failed:', error)
+            console.log('Email sending failed:', error)
         }
 
         return code

@@ -12,11 +12,7 @@ export class MailService {
             auth: {
                 user: 'cyb3ik.dev@gmail.com',
                 pass: 'xogk dxhh wnbw jwbq'
-            },
-
-            connectionTimeout: 10000,
-            greetingTimeout: 10000,
-            socketTimeout: 10000,
+            }
         })
     }
 
@@ -24,7 +20,7 @@ export class MailService {
         email: string,
         code: string,
     ) {
-        return this.transporter.sendMail({
+        const info = await this.transporter.sendMail({
             from: `"Kirya" <code>`,
             to: email,
             subject: 'Confirmation code',
@@ -42,13 +38,15 @@ export class MailService {
                 </p>
             `,
         })
+
+        return info
     }
 
     async sendRecoveryCode(
         email: string,
         code: string,
     ) {
-        return this.transporter.sendMail({
+        const info = await this.transporter.sendMail({
             from: `"Kirya" <code>`,
             to: email,
             subject: 'Password recovery code',
@@ -65,5 +63,7 @@ export class MailService {
                 </p>
             `,
         })
+
+        return info
     }
 }
