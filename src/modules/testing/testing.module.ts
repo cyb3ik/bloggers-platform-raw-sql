@@ -8,15 +8,9 @@ import { LikeSchema, MongoLike } from '../bloggers-platform/likes/domain/like-mo
 import { MongoPost, PostSchema } from '../bloggers-platform/posts/domain/post-mongoose.entity';
 import { CommentSchema, MongoComment } from '../bloggers-platform/comments/domain/comment-mongoose.entity';
 import { MongoSession, SessionSchema } from '../sessions/domain/session-mongoose.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     imports: [
-        TypeOrmModule.forRoot({
-            type: 'postgres',
-            url: process.env.POSTGRES_DB_URI,
-            synchronize: false
-        }),
         MongooseModule.forFeature([
             { name: MongoUser.name, schema: UserSchema },
             { name: MongoBlog.name, schema: BlogSchema },
