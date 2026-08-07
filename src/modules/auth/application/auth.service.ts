@@ -40,23 +40,36 @@ export class AuthService {
         return user
     }
 
-    async sendCodeViaEmail(user: User, options: { codeType: CodeType }) {
-        const code = randomUUID().toString()
+    async sendCodeViaEmail(user: User, options: { codeType: CodeType }): Promise<string> {
+        const code = randomUUID()
 
         const userData = user.getPersistenceData()
 
         switch (options.codeType) {
-            case (CodeType.emailConfirmation):
+            case CodeType.emailConfirmation:
                 user.setEmailConfirmationCode(code)
-                await this.MailService.sendEmail(userData.email, code)
                 break
-            case (CodeType.recovery):
+
+            case CodeType.recovery:
                 user.setPasswordRecoveryCode(code)
-                await this.MailService.sendRecoveryCode(userData.email, code)
                 break
         }
 
         await this.UsersRepository.save(user)
+
+        try {
+            switch (options.codeType) {
+                case CodeType.emailConfirmation:
+                    await this.MailService.sendEmail(userData.email, code)
+                    break
+
+                case CodeType.recovery:
+                    await this.MailService.sendRecoveryCode(userData.email, code)
+                    break
+            }
+        } catch (error) {
+            console.error('Email sending failed:', error)
+        }
 
         return code
     }

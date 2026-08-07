@@ -3,8 +3,6 @@ import { AuthService, CodeType } from "../../auth.service";
 import { CreateUserInputDto } from "../../../../users/api/dto/users.input-dto";
 import { UsersRepository } from "../../../../users/infrastructure/users.repository";
 import { CreateUserCommand } from "../../../../users/application/use-cases/commands/create-user.usecase";
-import { Types } from "mongoose";
-
 
 export class RegisterUserCommand {
     constructor(public readonly dto: CreateUserInputDto) { }
@@ -20,11 +18,18 @@ export class RegisterUserUseCase
     ) { }
 
     async execute({ dto }: RegisterUserCommand): Promise<void> {
-
-        const userId = await this.CommandBus.execute(new CreateUserCommand(dto))
+        const userId = await this.CommandBus.execute(
+            new CreateUserCommand(dto),
+        )
 
         const user = await this.UsersRepository.findEntityById(userId)
 
-        this.AuthService.sendCodeViaEmail(user, { codeType: CodeType.emailConfirmation }).catch(e => console.log(e))
+        if (!user) {
+            throw new Error(`User ${userId} was not found after creation`)
+        }
+
+        await this.AuthService.sendCodeViaEmail(user, {
+            codeType: CodeType.emailConfirmation,
+        })
     }
 }
