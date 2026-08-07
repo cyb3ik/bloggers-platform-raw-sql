@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './api/users.controller';
 import { UsersService } from './application/users.service';
-import { MongooseModule } from '@nestjs/mongoose';
 import { UsersRepository } from './infrastructure/users.repository';
 import { UsersQueryRepository } from './infrastructure/users.query.repository';
 import { BcryptService } from './application/bcrypt.service';
@@ -30,8 +29,6 @@ import { SecurityDevicesController } from '../sessions/api/security-devices.cont
 import { FindAllUserSessionsQueryHandler } from '../sessions/use-cases/queries/find-all-user-sessions.query';
 import { DeleteAllSessionExceptCurrentUseCase } from '../sessions/use-cases/commands/delete-all-sessions-except-current.usecase';
 import { DeleteSpecifiedSessionUseCase } from '../sessions/use-cases/commands/delete-specified-session.usecase';
-import { MongoUser, UserSchema } from './domain/user-mongoose.entity';
-import { MongoSession, SessionSchema } from '../sessions/domain/session-mongoose.entity';
 import { SessionsRepository } from '../sessions/infrastructure/sessions.repository';
 import { SessionsQueryRepository } from '../sessions/infrastructure/sessions.query.repository';
 
@@ -58,10 +55,6 @@ const commandHandlers = [
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: MongoUser.name, schema: UserSchema },
-      { name: MongoSession.name, schema: SessionSchema }
-    ]),
     JwtModule,
     CqrsModule.forRoot()
   ],
@@ -111,6 +104,14 @@ const commandHandlers = [
   exports: [
     UsersService,
     UsersRepository,
-    BcryptService]
+    BcryptService,
+    UsersQueryRepository,
+    FindAllUsersQueryHandler,
+    FindUserByIdQueryHandler,
+    CreateUserUseCase,
+    DeleteUserUseCase,
+    UsersConfig,
+    CoreConfig,
+  ]
 })
 export class UsersModule { }

@@ -22,6 +22,8 @@ export class CoreConfig {
         this.env = this.configService.get('NODE_ENV')
         this.refreshTokenSecret = this.configService.get('REFRESH_TOKEN_SECRET')
         this.accessTokenSecret = this.configService.get('ACCESS_TOKEN_SECRET')
+        this.saRefreshTokenSecret = this.configService.get('SA_REFRESH_TOKEN_SECRET')
+        this.saAccessTokenSecret = this.configService.get('SA_ACCESS_TOKEN_SECRET')
 
         configValidationUtility.validateConfig(this)
     }
@@ -56,5 +58,15 @@ export class CoreConfig {
         message: 'Set Env variable ACCESS_TOKEN_SECRET, dangerous for security!',
     })
     accessTokenSecret: string
+
+    @IsNotEmpty({
+        message: 'Set Env variable SA_REFRESH_TOKEN_SECRET, dangerous for security!',
+    })
+    saRefreshTokenSecret: string
+
+    @IsNotEmpty({
+        message: 'Set Env variable SA_ACCESS_TOKEN_SECRET, dangerous for security!',
+    })
+    saAccessTokenSecret: string
 
 }

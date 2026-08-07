@@ -9,6 +9,7 @@ import { TestingModule } from './modules/testing/testing.module';
 import { APP_GUARD } from '@nestjs/core';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       ]
     }),
     UsersModule,
-    BloggersPlatformModule
+    BloggersPlatformModule,
+    SuperAdminModule
   ],
   controllers: [AppController],
   providers: [
