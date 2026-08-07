@@ -10,8 +10,8 @@ export class MailService {
             service: 'gmail',
 
             auth: {
-                user: process.env.GMAIL_USER,
-                pass: process.env.GMAIL_APP_PASSWORD,
+                user: 'cyb3ik.dev@gmail.com',
+                pass: 'xogk dxhh wnbw jwbq'
             },
 
             connectionTimeout: 10000,
@@ -25,7 +25,7 @@ export class MailService {
         code: string,
     ) {
         return this.transporter.sendMail({
-            from: `"Kirya" <${process.env.GMAIL_USER}>`,
+            from: `"Kirya" <code>`,
             to: email,
             subject: 'Confirmation code',
 
@@ -49,7 +49,7 @@ export class MailService {
         code: string,
     ) {
         return this.transporter.sendMail({
-            from: `"Kirya" <${process.env.GMAIL_USER}>`,
+            from: `"Kirya" <code>`,
             to: email,
             subject: 'Password recovery code',
 
