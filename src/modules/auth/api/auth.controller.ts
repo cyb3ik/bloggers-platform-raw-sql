@@ -16,7 +16,6 @@ import { ChangeUserPasswordCommand } from "../application/use-cases/commands/cha
 import { GetMePageQuery } from "../application/use-cases/queries/get-me-page.query";
 import { type Request, type Response } from "express";
 import { UserInfo } from "../../users/api/dto/user-info.dto";
-import { RateLimitGuard } from "../../../core/guards/rate-limit.guard";
 import { RefreshTokenGuard } from "../../../core/guards/refresh-token.guard";
 import { ExtractSessionInfoFromRequest } from "../../../core/decorators/extract-session-info.decorator";
 import { SessionInfo } from "../../sessions/dto/session-info.dto";
@@ -24,7 +23,6 @@ import { GenerateNewTokensCommand } from "../application/use-cases/commands/gene
 import { LogoutCommand } from "../application/use-cases/commands/logout.usecase";
 
 @Controller('auth')
-@UseGuards(RateLimitGuard)
 export class AuthController {
     constructor(
         private readonly CommandBus: CommandBus,

@@ -2,6 +2,7 @@ import { RawSessionData } from "../dto/session.raw-dto"
 
 export class Session {
     public id: string
+    private ip: string
     private title: string
     private lastActiveDate: number
     private deviceId: string
@@ -10,6 +11,7 @@ export class Session {
 
     constructor(dto: RawSessionData) {
         this.id = dto.id
+        this.ip = dto.ip
         this.title = dto.title
         this.lastActiveDate = dto.lastActiveDate
         this.deviceId = dto.deviceId
@@ -19,6 +21,7 @@ export class Session {
 
     getPersistenceData() {
         return {
+            ip: this.ip,
             title: this.title,
             lastActiveDate: this.lastActiveDate,
             deviceId: this.deviceId,

@@ -20,4 +20,18 @@ export class RawSessionData {
 
         return data
     }
+
+    static createFromSqlRow(row: any) {
+        const data = new this()
+
+        data.id = row.id
+        data.ip = row.ip
+        data.title = row.title
+        data.lastActiveDate = Number(row.last_active_date)
+        data.deviceId = row.device_id
+        data.userId = row.user_id
+        data.exp = Number(row.exp)
+
+        return data
+    }
 }

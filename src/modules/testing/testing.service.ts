@@ -5,8 +5,9 @@ import { MongoUser, type UserModelType } from "../users/domain/user-mongoose.ent
 import { MongoLike, type LikeModelType } from "../bloggers-platform/likes/domain/like-mongoose.entity";
 import { MongoPost, type PostModelType } from "../bloggers-platform/posts/domain/post-mongoose.entity";
 import { MongoComment, type CommentModelType } from "../bloggers-platform/comments/domain/comment-mongoose.entity";
-import { MongoRequest, type RequestModelType } from "../../core/requests/entity/request-mongoose.entity";
 import { MongoSession, type SessionModelType } from "../sessions/domain/session-mongoose.entity";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class TestingService {
@@ -23,18 +24,28 @@ export class TestingService {
         private readonly LikeModel: LikeModelType,
         @InjectModel(MongoSession.name)
         private readonly SessionModel: SessionModelType,
-        @InjectModel(MongoRequest.name)
-        private readonly RequestModel: RequestModelType
+        @InjectDataSource()
+        private readonly dataSource: DataSource,
 
     ) { }
 
     async deleteAll() {
+        await this.dataSource.query(`
+            TRUNCATE TABLE
+                likes,
+                comments,
+                posts,
+                blogs,
+                sessions,
+                users
+            RESTART IDENTITY
+        `)
+
         await this.UserModel.deleteMany({})
         await this.BlogModel.deleteMany({})
         await this.PostModel.deleteMany({})
         await this.CommentModel.deleteMany({})
         await this.LikeModel.deleteMany({})
         await this.SessionModel.deleteMany({})
-        await this.RequestModel.deleteMany({})
     }
 }

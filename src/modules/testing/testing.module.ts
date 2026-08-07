@@ -7,11 +7,16 @@ import { MongoUser, UserSchema } from '../users/domain/user-mongoose.entity';
 import { LikeSchema, MongoLike } from '../bloggers-platform/likes/domain/like-mongoose.entity';
 import { MongoPost, PostSchema } from '../bloggers-platform/posts/domain/post-mongoose.entity';
 import { CommentSchema, MongoComment } from '../bloggers-platform/comments/domain/comment-mongoose.entity';
-import { MongoRequest, RequestSchema } from '../../core/requests/entity/request-mongoose.entity';
 import { MongoSession, SessionSchema } from '../sessions/domain/session-mongoose.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     imports: [
+        TypeOrmModule.forRoot({
+            type: 'postgres',
+            url: process.env.POSTGRES_DB_URI,
+            synchronize: false
+        }),
         MongooseModule.forFeature([
             { name: MongoUser.name, schema: UserSchema },
             { name: MongoBlog.name, schema: BlogSchema },
@@ -19,7 +24,7 @@ import { MongoSession, SessionSchema } from '../sessions/domain/session-mongoose
             { name: MongoComment.name, schema: CommentSchema },
             { name: MongoLike.name, schema: LikeSchema },
             { name: MongoSession.name, schema: SessionSchema },
-            { name: MongoRequest.name, schema: RequestSchema }])
+        ])
     ],
     controllers: [TestingController],
     providers: [TestingService]
