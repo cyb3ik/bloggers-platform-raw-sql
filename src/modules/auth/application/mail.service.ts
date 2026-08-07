@@ -14,9 +14,9 @@ export class MailService {
                 pass: process.env.GMAIL_APP_PASSWORD,
             },
 
-            connectionTimeout: 10_000,
-            greetingTimeout: 10_000,
-            socketTimeout: 10_000,
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 10000,
         })
     }
 
