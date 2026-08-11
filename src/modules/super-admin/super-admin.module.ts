@@ -1,19 +1,21 @@
 import { Module } from "@nestjs/common";
 import { UsersModule } from "../users/users.module";
 import { JwtModule, JwtService } from "@nestjs/jwt";
-import { CqrsModule } from "@nestjs/cqrs";
 import { SaUsersController } from "./super-admin-users.controller";
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN, REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from "../../core/constants/jwt-tokens";
 import { CoreConfig } from "../../core/core.config";
 import { UsersConfig } from "../users/users.config";
+import { SaBlogsController } from "./super-admin-blogs.controller";
+import { SaPostsController } from "./super-admin-posts.controller";
+import { BloggersPlatformModule } from "../bloggers-platform/bloggers-platform.module";
 
 @Module({
     imports: [
         UsersModule,
-        JwtModule,
-        CqrsModule.forRoot()
+        BloggersPlatformModule,
+        JwtModule
     ],
-    controllers: [SaUsersController],
+    controllers: [SaUsersController, SaBlogsController, SaPostsController],
     providers: [
         {
             provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,

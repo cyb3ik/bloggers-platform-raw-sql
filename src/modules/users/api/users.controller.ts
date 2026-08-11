@@ -23,13 +23,6 @@ export class UsersController {
         return this.QueryBus.execute(new FindAllUsersQuery(query))
     }
 
-    @Get(':id')
-    @UseGuards(BasicAuthGuard)
-    @HttpCode(HttpStatus.OK)
-    async findUserById(@Param('id') id: string) {
-        return this.QueryBus.execute(new FindUserByIdQuery(id))
-    }
-
     @Post()
     @UseGuards(BasicAuthGuard)
     @HttpCode(HttpStatus.CREATED)

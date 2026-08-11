@@ -74,13 +74,10 @@ const queryHandlers = [...blogsQueries, ...postsQueries, ...commentsQueries]
 @Module({
     imports: [UsersModule],
     providers: [
-        BlogsService,
         BlogsRepository,
         BlogsQueryRepository,
-        PostsService,
         PostsRepository,
         PostsQueryRepository,
-        CommentsService,
         CommentsRepository,
         CommentsQueryRepository,
         ...commandHandlers,
@@ -101,6 +98,16 @@ const queryHandlers = [...blogsQueries, ...postsQueries, ...commentsQueries]
         BlogsController,
         PostsController,
         CommentsController
+    ],
+    exports: [
+        BlogsRepository,
+        BlogsQueryRepository,
+        PostsRepository,
+        PostsQueryRepository,
+        LikesRepository,
+        LikesQueryRepository,
+        ...commandHandlers,
+        ...queryHandlers,
     ]
 })
 

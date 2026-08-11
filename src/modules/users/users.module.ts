@@ -55,10 +55,12 @@ const commandHandlers = [
 
 @Module({
   imports: [
-    JwtModule,
-    CqrsModule.forRoot()
+    JwtModule
   ],
-  controllers: [UsersController, AuthController, SecurityDevicesController],
+  controllers: [
+    //UsersController, 
+    AuthController,
+    SecurityDevicesController],
   providers: [
     UsersService,
     UsersRepository,
