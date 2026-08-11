@@ -11,6 +11,7 @@ import { BlogsQueryParams } from "../bloggers-platform/blogs/api/dto/blogs.query
 import { FindAllBlogsQuery } from "../bloggers-platform/blogs/application/use-cases/queries/find-all-blogs.query";
 
 @Controller('sa/blogs')
+@UseGuards(BasicAuthGuard)
 @SkipThrottle()
 export class SaBlogsController {
     constructor(
@@ -26,7 +27,6 @@ export class SaBlogsController {
     }
 
     @Post()
-    @UseGuards(BasicAuthGuard)
     @HttpCode(HttpStatus.CREATED)
     async createBlog(@Body() dto: CreateBlogInputDto) {
 
@@ -36,7 +36,6 @@ export class SaBlogsController {
     }
 
     @Put(':id')
-    @UseGuards(BasicAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateBlogById(
         @Param('id') id: string,
@@ -46,7 +45,6 @@ export class SaBlogsController {
     }
 
     @Delete(':id')
-    @UseGuards(BasicAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteBlogById(@Param('id') id: string) {
 

@@ -14,6 +14,7 @@ import { UpdatePostCommand } from "../bloggers-platform/posts/application/use-ca
 import { DeletePostCommand } from "../bloggers-platform/posts/application/use-cases/commands/delete-post.usecase";
 
 @Controller('sa/blogs/:blogId/posts')
+@UseGuards(BasicAuthGuard)
 @SkipThrottle()
 export class SaPostsController {
     constructor(
