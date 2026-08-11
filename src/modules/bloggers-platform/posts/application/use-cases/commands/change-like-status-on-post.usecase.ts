@@ -54,7 +54,9 @@ export class ChangeLikeStatusOnPostUseCase
             await this.LikesRepository.save(newLike)
 
         } else {
-            if (like.status === LikeStatus.Like) {
+            const likeData = like.getPersistenceData()
+
+            if (likeData.status === LikeStatus.Like) {
                 switch (dto.likeStatus) {
                     case (LikeStatus.Dislike):
                         like.updateLikeStatus(dto.likeStatus)

@@ -18,4 +18,17 @@ export class RawBlogData {
 
         return data
     }
+
+    static createFromSqlRow(row: any) {
+        const data = new this()
+
+        data.id = row.id
+        data.name = row.name
+        data.description = row.description
+        data.websiteUrl = row.website_url
+        data.isMembership = row.is_membership
+        data.createdAt = row.created_at
+
+        return data
+    }
 }

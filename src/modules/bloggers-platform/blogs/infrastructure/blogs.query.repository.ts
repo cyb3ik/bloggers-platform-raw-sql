@@ -1,58 +1,126 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { MongoBlog } from "../domain/blog-mongoose.entity";
-import type { BlogModelType } from "../domain/blog-mongoose.entity";
 import { BlogViewDto } from "../api/dto/blogs.view-dto";
 import { BlogsQueryParams } from "../api/dto/blogs.query.params-dto";
 import { PaginatedViewDto } from "../../../../core/dto/paginated.view-dto";
 import { BaseQueryRepository } from "../../../../core/interfaces/repositories/query-repository.interface";
 import { RawBlogData } from "../domain/dto/blog.raw-dto";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
 
+const BLOG_SORT_COLUMNS = {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    websiteUrl: 'website_url',
+    createdAt: 'created_at',
+    isMembership: 'is_membership'
+}
 
 @Injectable()
 export class BlogsQueryRepository implements BaseQueryRepository<BlogViewDto, BlogsQueryParams> {
-    constructor(@InjectModel(MongoBlog.name) private readonly BlogModel: BlogModelType) { }
+    constructor(
+        @InjectDataSource()
+        private readonly dataSource: DataSource
+    ) { }
 
     async getEntityById(id: string): Promise<BlogViewDto | null> {
-        const blogDocument = await this.BlogModel.findOne({
-            _id: id,
-            deletedAt: null,
-        }).lean()
+        const rows = await this.dataSource.query(
+            `
+            SELECT
+                id,
+                name,
+                description,
+                website_url,
+                is_membership,
+                created_at,
+                deleted_at
+            FROM blogs
+            WHERE id = $1
+            AND deleted_at IS NULL
+            LIMIT 1
+            `,
+            [id]
+        )
 
-        if (!blogDocument) {
+        const row = rows[0]
+
+        if (!row) {
             return null
         }
 
-        const blogData = RawBlogData.createFromDocument(blogDocument)
+        const rawblogData = RawBlogData.createFromSqlRow(row)
 
-        return new BlogViewDto(blogData)
+        return new BlogViewDto(rawblogData)
     }
 
     async getAllEntities(query: BlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto[]>> {
 
-        const { pageNumber, pageSize, sortBy, sortDirection, searchNameTerm } = query
+        const {
+            pageNumber,
+            pageSize,
+            sortBy,
+            sortDirection
+        } = query
 
         const skip = query.calculateSkip()
 
-        const filter: any = { deletedAt: null }
-        filter.$or = []
+        const { whereSql, parameters } =
+            this.buildWhereClause(query)
 
-        if (searchNameTerm) {
-            filter.$or.push({ name: { $regex: searchNameTerm, $options: 'i' } })
-        }
+        const sortColumn =
+            BLOG_SORT_COLUMNS[sortBy] ??
+            BLOG_SORT_COLUMNS.createdAt
 
-        const result = await this.BlogModel
-            .find(filter)
-            .sort({ [sortBy]: sortDirection })
-            .skip(skip)
-            .limit(pageSize)
-            .lean()
+        const sqlSortDirection =
+            sortDirection === 'asc' ? 'ASC' : 'DESC'
 
-        const totalCount = await this.BlogModel.countDocuments(filter)
+        const limitParameterPosition =
+            parameters.length + 1
+
+        const offsetParameterPosition =
+            parameters.length + 2
+
+        const blogs = await this.dataSource.query(
+            `
+                SELECT
+                    id,
+                    name,
+                    description,
+                    website_url,
+                    is_membership,
+                    created_at,
+                    deleted_at
+                FROM blogs
+                ${whereSql}
+                ORDER BY
+                    ${sortColumn} ${sqlSortDirection},
+                    id ASC
+                LIMIT $${limitParameterPosition}
+                OFFSET $${offsetParameterPosition}
+            `,
+            [
+                ...parameters,
+                pageSize,
+                skip,
+            ],
+        )
+
+        const countResult =
+            await this.dataSource.query(
+                `
+                    SELECT
+                        COUNT(*) AS "totalCount"
+                    FROM blogs
+                    ${whereSql}
+                `,
+                parameters,
+            )
+
+        const totalCount = Number(countResult[0]?.totalCount ?? 0)
 
         return PaginatedViewDto.mapToView({
-            items: result.map(blogDocument => {
-                const blogData = RawBlogData.createFromDocument(blogDocument)
+            items: blogs.map(row => {
+                const blogData = RawBlogData.createFromSqlRow(row)
 
                 return new BlogViewDto(blogData)
             }),
@@ -61,4 +129,29 @@ export class BlogsQueryRepository implements BaseQueryRepository<BlogViewDto, Bl
             totalCount: totalCount
         })
     }
+
+    private buildWhereClause(query: BlogsQueryParams) {
+        const conditions = [
+            'deleted_at IS NULL',
+        ]
+
+        const parameters = []
+        const searchConditions = []
+
+        if (query.searchNameTerm) {
+            parameters.push(query.searchNameTerm)
+
+            searchConditions.push(`
+                    name ILIKE
+                    '%' || $${parameters.length} || '%'
+                `)
+        }
+
+        return {
+            whereSql: `WHERE ${conditions.join(' AND ')}`,
+            parameters,
+        }
+    }
+
+
 }

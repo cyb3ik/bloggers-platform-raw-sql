@@ -2,7 +2,6 @@ import { Query } from '@nestjs/cqrs';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { SessionInfo } from '../../dto/session-info.dto';
 import { SessionViewDto } from '../../dto/session.view-dto';
-import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { SessionsQueryRepository } from '../../infrastructure/sessions.query.repository';
 
 export class FindAllUserSessionsQuery extends Query<SessionViewDto[]> {

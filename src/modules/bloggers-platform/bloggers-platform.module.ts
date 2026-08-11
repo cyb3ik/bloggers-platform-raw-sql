@@ -1,6 +1,4 @@
 import { Module } from "@nestjs/common";
-import { MongooseModule } from "@nestjs/mongoose";
-import { MongoBlog, BlogSchema } from "./blogs/domain/blog-mongoose.entity";
 import { BlogsService } from "./blogs/application/blogs.service";
 import { BlogsRepository } from "./blogs/infrastructure/blogs.repository";
 import { BlogsQueryRepository } from "./blogs/infrastructure/blogs.query.repository";
@@ -34,11 +32,8 @@ import { FindAllPostsQueryHandler } from "./posts/application/use-cases/queries/
 import { ChangeLikeStatusOnCommentUseCase } from "./comments/application/use-cases/commands/change-like-status-on-comment.usecase";
 import { CreateCommentForPostUseCase } from "./posts/application/use-cases/commands/create-comment-for-post.usecase";
 import { ChangeLikeStatusOnPostUseCase } from "./posts/application/use-cases/commands/change-like-status-on-post.usecase";
-import { LikeSchema, MongoLike } from "./likes/domain/like-mongoose.entity";
 import { LikesRepository } from "./likes/repositories/likes.repository";
 import { LikesQueryRepository } from "./likes/repositories/likes.query.repository";
-import { MongoPost, PostSchema } from "./posts/domain/post-mongoose.entity";
-import { CommentSchema, MongoComment } from "./comments/domain/comment-mongoose.entity";
 
 const blogsCommands = [
     CreateBlogUseCase,
@@ -77,13 +72,7 @@ const commandHandlers = [...blogsCommands, ...postsCommands, ...commentsCommands
 const queryHandlers = [...blogsQueries, ...postsQueries, ...commentsQueries]
 
 @Module({
-    imports: [MongooseModule.forFeature([
-        { name: MongoBlog.name, schema: BlogSchema },
-        { name: MongoPost.name, schema: PostSchema },
-        { name: MongoComment.name, schema: CommentSchema },
-        { name: MongoLike.name, schema: LikeSchema }
-    ]),
-        UsersModule],
+    imports: [UsersModule],
     providers: [
         BlogsService,
         BlogsRepository,

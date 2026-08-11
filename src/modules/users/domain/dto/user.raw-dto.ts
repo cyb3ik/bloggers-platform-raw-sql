@@ -14,29 +14,6 @@ export class RawUserData {
 
     createdAt: Date
 
-    static createFromDocument(document: any) {
-        const data = new this()
-
-        data.id = document._id.toString()
-        data.email = document.email
-        data.passwordSalt = document.passwordSalt
-        data.passwordHash = document.passwordHash
-        data.login = document.login
-
-        data.emailConfirmationCode = document.emailConfirmation.confirmationCode
-        data.confirmationExpiresAt = document.emailConfirmation.expirationDate
-        data.isConfirmed = document.emailConfirmation.isConfirmed
-
-        if (document.passwordRecovery) {
-            data.passwordRecoveryCode = document.passwordRecovery.recoveryCode
-            data.recoveryExpiresAt = document.passwordRecovery.expirationDate
-        }
-
-        data.createdAt = document.createdAt
-
-        return data
-    }
-
     static createFromSqlRow(row: any) {
         const data = new this()
         data.id = row.id

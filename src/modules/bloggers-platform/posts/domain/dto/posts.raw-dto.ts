@@ -7,16 +7,16 @@ export class RawPostData {
     blogName: string
     createdAt: Date
 
-    static createFromDocument(document: any) {
+    static createFromSqlRow(row: any) {
         const data = new this()
 
-        data.id = document._id.toString()
-        data.title = document.title
-        data.shortDescription = document.shortDescription
-        data.content = document.content
-        data.blogId = document.blogId
-        data.blogName = document.blogName
-        data.createdAt = document.createdAt
+        data.id = row.id
+        data.title = row.title
+        data.shortDescription = row.short_description
+        data.content = row.content
+        data.blogId = row.blog_id
+        data.blogName = row.blog_name
+        data.createdAt = row.created_at
 
         return data
     }

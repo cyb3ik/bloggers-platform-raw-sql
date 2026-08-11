@@ -2,11 +2,11 @@ import { LikeStatus, RawLikeData } from "../dto/like.raw-dto"
 
 export class Like {
     public id: string
-    public userId: string
-    public entityId: string
-    public userLogin: string
-    public status: LikeStatus
-    public createdAt: Date
+    private userId: string
+    private entityId: string
+    private userLogin: string
+    private status: LikeStatus
+    private createdAt: Date
     private deletedAt: Date | null = null
 
     constructor(dto: RawLikeData) {
@@ -20,7 +20,12 @@ export class Like {
 
     getPersistenceData() {
         return {
-            status: this.status
+            userId: this.userId,
+            entityId: this.entityId,
+            userLogin: this.userLogin,
+            status: this.status,
+            createdAt: this.createdAt,
+            deletedAt: this.deletedAt
         }
     }
 

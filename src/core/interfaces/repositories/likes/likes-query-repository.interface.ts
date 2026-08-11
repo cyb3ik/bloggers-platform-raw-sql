@@ -1,6 +1,7 @@
-import { LikeViewDto } from "../../../../modules/bloggers-platform/likes/dto/like-view.dto"
+import { CommentLikesInfo } from "../../../../modules/bloggers-platform/comments/api/dto/comments.view-dto"
+import { ExtendedPostLikesInfo } from "../../../../modules/bloggers-platform/posts/api/dto/posts.view-dto"
 
 export interface ILikesQueryRepository {
-    getNewestLikesFromEntity(entityId: string): Promise<LikeViewDto[]>
-    getLikesAndDislikesCount(entityId: string): Promise<{ likesCount: number, dislikesCount: number }>
+    getPostLikesInfo(entityId: string, userId?: string): Promise<ExtendedPostLikesInfo>
+    getCommentLikesInfo(entityId: string, userId?: string): Promise<CommentLikesInfo>
 }

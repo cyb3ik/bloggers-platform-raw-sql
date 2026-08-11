@@ -7,11 +7,6 @@ import { PaginatedViewDto } from '../../../core/dto/paginated.view-dto'
 import { BaseQueryRepository } from '../../../core/interfaces/repositories/query-repository.interface'
 import { RawUserData } from '../domain/dto/user.raw-dto'
 
-interface UsersFilterData {
-    whereSql: string
-    parameters: unknown[]
-}
-
 const USER_SORT_COLUMNS = {
     id: 'id',
     login: 'login',
@@ -124,12 +119,12 @@ export class UsersQueryRepository
             }),
             page: pageNumber,
             size: pageSize,
-            totalCount
+            totalCount: totalCount
         })
     }
 
-    private buildWhereClause(query: UsersQueryParams): UsersFilterData {
-        const conditions: string[] = [
+    private buildWhereClause(query: UsersQueryParams) {
+        const conditions = [
             'deleted_at IS NULL',
         ]
 

@@ -1,32 +1,56 @@
 import { Injectable } from "@nestjs/common";
-import { MongoComment, type CommentModelType } from "../domain/comment-mongoose.entity";
-import { InjectModel } from "@nestjs/mongoose";
 import { CommentViewDto } from "../api/dto/comments.view-dto";
 import { CommentsQueryParams } from "../api/dto/comments.query.params-dto";
 import { PaginatedViewDto } from "../../../../core/dto/paginated.view-dto";
 import { ICommentsQueryRepository } from "../../../../core/interfaces/repositories/comments/commets-query-repository.interface";
 import { LikesQueryRepository } from "../../likes/repositories/likes.query.repository";
 import { RawCommentData } from "../domain/dto/comment.raw-dto";
+import { InjectDataSource } from "@nestjs/typeorm";
+import { DataSource } from "typeorm";
+
+const COMMENT_SORT_COLUMNS = {
+    id: 'c.id',
+    content: 'c.content',
+    userLogin: 'u.login',
+    createdAt: 'c.created_at'
+}
 
 @Injectable()
 export class CommentsQueryRepository implements ICommentsQueryRepository {
     constructor(
-        @InjectModel(MongoComment.name)
-        private readonly CommentModel: CommentModelType,
+        @InjectDataSource()
+        private readonly dataSource: DataSource,
         private readonly LikesQueryRepository: LikesQueryRepository
     ) { }
 
     async getEntityById(id: string, userId?: string): Promise<CommentViewDto | null> {
-        const commentDocument = await this.CommentModel.findOne({
-            _id: id,
-            deletedAt: null,
-        })
+        const rows = await this.dataSource.query(
+            `
+                SELECT
+                    c.id,
+                    c.post_id,
+                    c.content,
+                    c.commentator_id,
+                    u.login AS user_login
+                    created_at,
+                    deleted_at
+                FROM comments c
+                INNER JOIN users u
+                    ON u.id = p.commentator_id
+                WHERE c.deleted_at IS NULL
+                AND c.id = $1
+                LIMIT 1
+            `,
+            [id]
+        )
 
-        if (!commentDocument) {
+        const row = rows[0]
+
+        if (!row) {
             return null
         }
 
-        const commentData = RawCommentData.createFromDocument(commentDocument)
+        const commentData = RawCommentData.createFromSqlRow(row)
 
         const likesInfo = await this.LikesQueryRepository.getCommentLikesInfo(id, userId)
 
@@ -38,21 +62,56 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
 
         const skip = query.calculateSkip()
 
-        const filter: any = { deletedAt: null }
+        const sortColumn =
+            COMMENT_SORT_COLUMNS[sortBy] ??
+            COMMENT_SORT_COLUMNS.createdAt
 
-        const result = await this.CommentModel
-            .find(filter)
-            .sort({ [sortBy]: sortDirection })
-            .skip(skip)
-            .limit(pageSize)
-            .exec()
+        const sqlSortDirection =
+            sortDirection === 'asc' ? 'ASC' : 'DESC'
 
-        const totalCount = await this.CommentModel.countDocuments(filter)
+        const comments = await this.dataSource.query(
+            `
+                SELECT
+                    c.id,
+                    c.post_id,
+                    c.content,
+                    c.commentator_id,
+                    u.login AS user_login
+                    created_at,
+                    deleted_at
+                FROM comments c
+                INNER JOIN users u
+                    ON u.id = p.commentator_id
+
+                WHERE c.deleted_at IS NULL
+                ORDER BY
+                    ${sortColumn} ${sqlSortDirection},
+                    id ASC
+                LIMIT $1
+                OFFSET $2
+            `,
+            [
+                pageSize,
+                skip,
+            ],
+        )
+
+        const countResult =
+            await this.dataSource.query(
+                `
+                    SELECT
+                        COUNT(*) AS "totalCount"
+                    FROM posts
+                    WHERE deleted_at IS NULL
+                `
+            )
+
+        const totalCount = Number(countResult[0]?.totalCount ?? 0)
 
         const mappedResult = []
 
-        for (const item of result) {
-            const commentData = RawCommentData.createFromDocument(item)
+        for (const item of comments) {
+            const commentData = RawCommentData.createFromSqlRow(item)
 
             const likesInfo = await this.LikesQueryRepository.getCommentLikesInfo(item.id, userId)
 
@@ -68,26 +127,62 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
     }
 
     async getAllCommentsFromPost(postId: string, query: CommentsQueryParams, userId?: string): Promise<PaginatedViewDto<CommentViewDto[]>> {
-
         const { pageSize, sortBy, sortDirection, pageNumber } = query
 
         const skip = query.calculateSkip()
 
-        const filter: any = { postId: postId, deletedAt: null }
+        const sortColumn =
+            COMMENT_SORT_COLUMNS[sortBy] ??
+            COMMENT_SORT_COLUMNS.createdAt
 
-        const result = await this.CommentModel
-            .find(filter)
-            .sort({ [sortBy]: sortDirection })
-            .skip(skip)
-            .limit(pageSize)
-            .exec()
+        const sqlSortDirection =
+            sortDirection === 'asc' ? 'ASC' : 'DESC'
 
-        const totalCount = await this.CommentModel.countDocuments(filter)
+        const comments = await this.dataSource.query(
+            `
+                SELECT
+                    c.id,
+                    c.post_id,
+                    c.content,
+                    c.commentator_id,
+                    u.login AS user_login
+                    created_at,
+                    deleted_at
+                FROM comments c
+                INNER JOIN users u
+                    ON u.id = p.commentator_id
+
+                WHERE c.deleted_at IS NULL
+                AND c.post_id = %1
+                ORDER BY
+                    ${sortColumn} ${sqlSortDirection},
+                    id ASC
+                LIMIT $2
+                OFFSET $3
+            `,
+            [
+                postId,
+                pageSize,
+                skip,
+            ],
+        )
+
+        const countResult =
+            await this.dataSource.query(
+                `
+                    SELECT
+                        COUNT(*) AS "totalCount"
+                    FROM posts
+                    WHERE deleted_at IS NULL
+                `
+            )
+
+        const totalCount = Number(countResult[0]?.totalCount ?? 0)
 
         const mappedResult = []
 
-        for (const item of result) {
-            const commentData = RawCommentData.createFromDocument(item)
+        for (const item of comments) {
+            const commentData = RawCommentData.createFromSqlRow(item)
 
             const likesInfo = await this.LikesQueryRepository.getCommentLikesInfo(item.id, userId)
 

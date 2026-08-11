@@ -1,54 +1,90 @@
 import { Injectable } from "@nestjs/common"
-import { InjectModel } from "@nestjs/mongoose"
-import { LikeViewDto } from "../dto/like-view.dto"
 import { ILikesRepository } from "../../../../core/interfaces/repositories/likes/likes-repository.interface"
-import { MongoLike, type LikeModelType } from "../domain/like-mongoose.entity"
 import { Like } from "../domain/like-domain.entity"
 import { RawLikeData } from "../dto/like.raw-dto"
+import { InjectDataSource } from "@nestjs/typeorm"
+import { DataSource } from "typeorm"
 
 @Injectable()
 export class LikesRepository implements ILikesRepository {
-    constructor(@InjectModel(MongoLike.name) private readonly LikeModel: LikeModelType) { }
+    constructor(
+        @InjectDataSource()
+        private readonly dataSource: DataSource,
+    ) { }
 
     async save(like: Like) {
         const data = like.getPersistenceData()
 
-        await this.LikeModel.updateOne(
-            { _id: like.id },
-            { $set: data },
-            { upsert: true }
+        await this.dataSource.query(
+            `
+                INSERT INTO likes (
+                    id,
+                    user_id,
+                    entity_id,
+                    status,
+                    created_at,
+                    deleted_at
+                )
+                VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    $6
+                )
+                ON CONFLICT (id)
+                DO UPDATE SET
+                    user_id = EXCLUDED.user_id,
+                    entity_id = EXCLUDED.entity_id,
+                    status = EXCLUDED.status,
+                    created_at = EXCLUDED.created_at,
+                    deleted_at = EXCLUDED.deleted_at
+            `,
+            [
+                like.id,
+                data.userId,
+                data.entityId,
+                data.status,
+                data.createdAt,
+                data.deletedAt
+            ]
         )
     }
 
-    async findEntityById(id: string): Promise<Like | null> {
-        const likeDocument = await this.LikeModel.findOne(
-            {
-                _id: id
-            }
-        ).lean()
-
-        if (!likeDocument) {
-            return null
-        }
-
-        const likeData = RawLikeData.createFromDocument(likeDocument)
-
-        return new Like(likeData)
-    }
-
     async findLikeByUserId(entityId: string, userId: string) {
-        const likeDocument = await this.LikeModel.findOne(
-            {
-                entityId: entityId,
-                userId: userId
-            }
-        ).lean()
+        const rows = await this.dataSource.query(
+            `
+                    SELECT
+                        l.id,
+                        l.entity_id,
+                        l.user_id,
+                        u.login AS user_login,
+                        l.status,
+                        l.created_at
+                    FROM likes l
+                    INNER JOIN users u
+                        on u.id = l.user_id
+                    WHERE entity_id = $1
+                    AND user_id = $2
+                    ORDER BY
+                        created_at DESC,
+                        id DESC
+                    LIMIT 3
+                `,
+            [
+                entityId,
+                userId
+            ],
+        )
 
-        if (!likeDocument) {
+        const row = rows[0]
+
+        if (!row) {
             return null
         }
 
-        const likeData = RawLikeData.createFromDocument(likeDocument)
+        const likeData = RawLikeData.createFromSqlRow(row)
 
         return new Like(likeData)
     }

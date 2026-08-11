@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Query
 import { CreateUserInputDto } from './dto/users.input-dto';
 import { UsersQueryParams } from './dto/users.query.params-dto';
 import { BasicAuthGuard } from '../../../core/guards/basic.auth.guard';
-import { Types } from 'mongoose';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/use-cases/commands/create-user.usecase';
 import { FindUserByIdQuery } from '../application/use-cases/queries/find-user-by-id.query';

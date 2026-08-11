@@ -6,15 +6,15 @@ export class RawCommentData {
     postId: string
     createdAt: Date
 
-    static createFromDocument(document: any) {
+    static createFromSqlRow(row: any) {
         const data = new this()
 
-        data.id = document._id.toString()
-        data.content = document.content
-        data.userId = document.commentatorInfo.userId
-        data.userLogin = document.commentatorInfo.userLogin
-        data.postId = document.postId
-        data.createdAt = document.createdAt
+        data.id = row.id
+        data.content = row.content
+        data.userId = row.user_id
+        data.userLogin = row.user_login
+        data.postId = row.post_id
+        data.createdAt = row.created_at
 
         return data
     }

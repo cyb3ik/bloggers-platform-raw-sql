@@ -6,15 +6,15 @@ export class RawLikeData {
     status: LikeStatus
     createdAt: Date
 
-    static createFromDocument(document: any) {
+    static createFromSqlRow(row: any): RawLikeData {
         const data = new this()
 
-        data.id = document._id.toString()
-        data.userId = document.userId
-        data.entityId = document.entityId
-        data.userLogin = document.userLogin
-        data.status = document.status
-        data.createdAt = document.createdAt
+        data.id = row.id
+        data.entityId = row.entity_id
+        data.userId = row.user_id
+        data.userLogin = row.user_login
+        data.status = row.status
+        data.createdAt = row.created_at
 
         return data
     }

@@ -28,8 +28,6 @@ export class RegisterUserUseCase
             throw new Error(`User ${userId} was not found after creation`)
         }
 
-        await this.AuthService.sendCodeViaEmail(user, {
-            codeType: CodeType.emailConfirmation,
-        })
+        this.AuthService.sendCodeViaEmail(user, { codeType: CodeType.emailConfirmation }).catch(e => console.log(e))
     }
 }
