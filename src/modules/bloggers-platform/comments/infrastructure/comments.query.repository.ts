@@ -31,12 +31,12 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                     c.post_id,
                     c.content,
                     c.commentator_id,
-                    u.login AS user_login
-                    created_at,
-                    deleted_at
+                    u.login AS user_login,
+                    c.created_at,
+                    c.deleted_at
                 FROM comments c
                 INNER JOIN users u
-                    ON u.id = p.commentator_id
+                    ON u.id = c.commentator_id
                 WHERE c.deleted_at IS NULL
                 AND c.id = $1
                 LIMIT 1
@@ -76,12 +76,12 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                     c.post_id,
                     c.content,
                     c.commentator_id,
-                    u.login AS user_login
-                    created_at,
-                    deleted_at
+                    u.login AS user_login,
+                    c.created_at,
+                    c.deleted_at
                 FROM comments c
                 INNER JOIN users u
-                    ON u.id = p.commentator_id
+                    ON u.id = c.commentator_id
 
                 WHERE c.deleted_at IS NULL
                 ORDER BY
@@ -101,7 +101,7 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                 `
                     SELECT
                         COUNT(*) AS "totalCount"
-                    FROM posts
+                    FROM comments
                     WHERE deleted_at IS NULL
                 `
             )
@@ -145,12 +145,12 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                     c.post_id,
                     c.content,
                     c.commentator_id,
-                    u.login AS user_login
-                    created_at,
-                    deleted_at
+                    u.login AS user_login,
+                    c.created_at,
+                    c.deleted_at
                 FROM comments c
                 INNER JOIN users u
-                    ON u.id = p.commentator_id
+                    ON u.id = c.commentator_id
 
                 WHERE c.deleted_at IS NULL
                 AND c.post_id = %1
@@ -172,7 +172,7 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                 `
                     SELECT
                         COUNT(*) AS "totalCount"
-                    FROM posts
+                    FROM comments
                     WHERE deleted_at IS NULL
                 `
             )

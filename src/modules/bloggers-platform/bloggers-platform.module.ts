@@ -34,6 +34,8 @@ import { CreateCommentForPostUseCase } from "./posts/application/use-cases/comma
 import { ChangeLikeStatusOnPostUseCase } from "./posts/application/use-cases/commands/change-like-status-on-post.usecase";
 import { LikesRepository } from "./likes/repositories/likes.repository";
 import { LikesQueryRepository } from "./likes/repositories/likes.query.repository";
+import { CoreConfig } from "../../core/core.config";
+import { UsersConfig } from "../users/users.config";
 
 const blogsCommands = [
     CreateBlogUseCase,
@@ -84,12 +86,17 @@ const queryHandlers = [...blogsQueries, ...postsQueries, ...commentsQueries]
         ...queryHandlers,
         {
             provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
-            useFactory: (): JwtService => {
+            useFactory: (
+                coreConfig: CoreConfig,
+                usersConfig: UsersConfig
+            ): JwtService => {
                 return new JwtService({
-                    secret: 'access-token-secret',
-                    signOptions: { expiresIn: '5m' },
+                    secret: coreConfig.accessTokenSecret,
+                    //@ts-ignore
+                    signOptions: { expiresIn: usersConfig.accessTokenExpirationTime },
                 })
-            }
+            },
+            inject: [CoreConfig, UsersConfig]
         },
         LikesRepository,
         LikesQueryRepository

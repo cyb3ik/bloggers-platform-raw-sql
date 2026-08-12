@@ -11,7 +11,7 @@ export class RawCommentData {
 
         data.id = row.id
         data.content = row.content
-        data.userId = row.user_id
+        data.userId = row.commentator_id
         data.userLogin = row.user_login
         data.postId = row.post_id
         data.createdAt = row.created_at

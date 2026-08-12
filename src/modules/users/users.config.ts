@@ -12,9 +12,6 @@ export class UsersConfig {
         this.refreshTokenExpirationTime = this.configService.get('REFRESH_TOKEN_EXPIRE_IN')
         this.accessTokenExpirationTime = this.configService.get('ACCESS_TOKEN_EXPIRE_IN')
 
-        this.saRefreshTokenExpirationTime = this.configService.get('SA_REFRESH_TOKEN_EXPIRE_IN')
-        this.saAccessTokenExpirationTime = this.configService.get('SA_ACCESS_TOKEN_EXPIRE_IN')
-
         this.isUserAutoConfirmed = configValidationUtility.convertToBoolean(this.configService.get('IS_USER_AUTOMATICALLY_CONFIRMED'))
 
         configValidationUtility.validateConfig(this)
@@ -29,16 +26,6 @@ export class UsersConfig {
         message: 'Set Env variable ACCESS_TOKEN_EXPIRE_IN',
     })
     accessTokenExpirationTime: string
-
-    @IsNotEmpty({
-        message: 'Set Env variable SA_REFRESH_TOKEN_EXPIRE_IN',
-    })
-    saRefreshTokenExpirationTime: string
-
-    @IsNotEmpty({
-        message: 'Set Env variable SA_ACCESS_TOKEN_EXPIRE_IN',
-    })
-    saAccessTokenExpirationTime: string
 
     @IsBoolean({
         message: 'Set Env variable IS_USER_AUTOMATICALLY_CONFIRMED',
