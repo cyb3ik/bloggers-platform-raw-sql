@@ -65,7 +65,7 @@ export class CommentsRepository implements BaseRepository<Comment> {
                     c.deleted_at
                 FROM comments c
                 INNER JOIN users u
-                    ON u.id = p.commentator_id
+                    ON u.id = c.commentator_id
                 WHERE c.deleted_at IS NULL
                 AND c.id = $1
                 LIMIT 1
