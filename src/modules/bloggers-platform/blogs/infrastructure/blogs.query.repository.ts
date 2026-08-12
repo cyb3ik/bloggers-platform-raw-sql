@@ -147,6 +147,12 @@ export class BlogsQueryRepository implements BaseQueryRepository<BlogViewDto, Bl
                 `)
         }
 
+        if (searchConditions.length > 0) {
+            conditions.push(
+                `(${searchConditions.join(' OR ')})`,
+            )
+        }
+
         return {
             whereSql: `WHERE ${conditions.join(' AND ')}`,
             parameters,

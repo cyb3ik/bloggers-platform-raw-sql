@@ -28,7 +28,8 @@ export class SaPostsController {
     async findAllPostsFromBlog(
         @CheckGuestStatus() user: UserInfo | null,
         @Param('blogId') blogId: string,
-        @Query() query: PostsQueryParams) {
+        @Query() query: PostsQueryParams
+    ) {
 
         if (user) {
             return this.QueryBus.execute(new FindAllPostsFromBlogQuery(blogId, query, user.id))
@@ -42,7 +43,8 @@ export class SaPostsController {
     @HttpCode(HttpStatus.CREATED)
     async createPostForBlog(
         @Param('blogId') blogId: string,
-        @Body() dto: CreatePostForBlogInputDto) {
+        @Body() dto: CreatePostForBlogInputDto
+    ) {
 
         const createdPostId = await this.CommandBus.execute(new CreatePostForBlogCommand(blogId, dto))
 
@@ -53,17 +55,22 @@ export class SaPostsController {
     @UseGuards(BasicAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     async updatePostById(
+        @Param('blogId') blogId: string,
         @Param('postId') id: string,
-        @Body() dto: UpdatePostInputDto) {
+        @Body() dto: UpdatePostInputDto
+    ) {
 
-        return this.CommandBus.execute(new UpdatePostCommand(id, dto))
+        return this.CommandBus.execute(new UpdatePostCommand(blogId, id, dto))
     }
 
     @Delete(':postId')
     @UseGuards(BasicAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
-    async deletePostById(@Param('postId') id: string) {
-        return this.CommandBus.execute(new DeletePostCommand(id))
+    async deletePostById(
+        @Param('blogId') blogId: string,
+        @Param('postId') id: string
+    ) {
+        return this.CommandBus.execute(new DeletePostCommand(blogId, id))
     }
 
 }

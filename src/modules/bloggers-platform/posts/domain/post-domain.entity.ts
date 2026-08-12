@@ -40,11 +40,9 @@ export class Post {
         this.deletedAt = new Date()
     }
 
-    update(dto: UpdatePostInputDto & { blogName: string }): void {
+    update(dto: UpdatePostInputDto): void {
         this.title = dto.title
         this.shortDescription = dto.shortDescription
         this.content = dto.content
-        this.blogId = dto.blogId
-        this.blogName = dto.blogName
     }
 }

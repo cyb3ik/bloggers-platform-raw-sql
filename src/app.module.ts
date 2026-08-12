@@ -36,10 +36,6 @@ import { CqrsModule } from '@nestjs/cqrs';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    }
   ],
 })
 

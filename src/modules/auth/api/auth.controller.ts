@@ -21,8 +21,10 @@ import { ExtractSessionInfoFromRequest } from "../../../core/decorators/extract-
 import { SessionInfo } from "../../sessions/dto/session-info.dto";
 import { GenerateNewTokensCommand } from "../application/use-cases/commands/generate-new-tokens.usecase";
 import { LogoutCommand } from "../application/use-cases/commands/logout.usecase";
+import { ThrottlerGuard } from "@nestjs/throttler";
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
     constructor(
         private readonly CommandBus: CommandBus,

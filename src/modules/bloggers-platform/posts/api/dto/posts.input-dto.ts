@@ -28,4 +28,4 @@ export class CreatePostInputDto extends CreatePostForBlogInputDto {
     blogId: string
 }
 
-export class UpdatePostInputDto extends CreatePostInputDto { }
+export class UpdatePostInputDto extends CreatePostForBlogInputDto { }

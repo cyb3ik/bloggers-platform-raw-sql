@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { Types } from "mongoose";
-import { NotFoundException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { PostsRepository } from "../../../infrastructure/posts.repository";
 import { UpdatePostInputDto } from "../../../api/dto/posts.input-dto";
 import { BlogsRepository } from "../../../../blogs/infrastructure/blogs.repository";
@@ -8,6 +7,7 @@ import { BlogsRepository } from "../../../../blogs/infrastructure/blogs.reposito
 
 export class UpdatePostCommand {
     constructor(
+        public readonly blogId: string,
         public readonly postId: string,
         public readonly dto: UpdatePostInputDto
     ) { }
@@ -21,14 +21,7 @@ export class UpdatePostUseCase
         private readonly BlogsRepository: BlogsRepository,
     ) { }
 
-    async execute({ postId, dto }: UpdatePostCommand): Promise<void> {
-        const post = await this.PostsRepository.findEntityById(postId)
-
-        if (!post) {
-            throw new NotFoundException('Post was not found')
-        }
-
-        const blogId = dto.blogId
+    async execute({ blogId, postId, dto }: UpdatePostCommand): Promise<void> {
 
         const blog = await this.BlogsRepository.findEntityById(blogId)
 
@@ -36,12 +29,19 @@ export class UpdatePostUseCase
             throw new NotFoundException('Blog was not found')
         }
 
-        const blogData = blog.getPersistenceData()
+        const post = await this.PostsRepository.findEntityById(postId)
 
-        post.update({
-            ...dto,
-            blogName: blogData.name
-        })
+        if (!post) {
+            throw new NotFoundException('Post was not found')
+        }
+
+        const postData = post.getPersistenceData()
+
+        if (postData.blogId !== blog.id) {
+            throw new ForbiddenException()
+        }
+
+        post.update(dto)
 
         await this.PostsRepository.save(post)
     }
