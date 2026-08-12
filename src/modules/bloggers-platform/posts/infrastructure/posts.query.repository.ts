@@ -14,7 +14,7 @@ const POST_SORT_COLUMNS = {
     title: 'p.title',
     shortDescription: 'p.short_description',
     content: 'p.content',
-    blogName: 'b.blog_name',
+    blogName: 'blog_name',
     createdAt: 'p.created_at',
 }
 

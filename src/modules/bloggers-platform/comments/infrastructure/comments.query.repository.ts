@@ -11,7 +11,7 @@ import { DataSource } from "typeorm";
 const COMMENT_SORT_COLUMNS = {
     id: 'c.id',
     content: 'c.content',
-    userLogin: 'u.login',
+    userLogin: 'user_login',
     createdAt: 'c.created_at'
 }
 
