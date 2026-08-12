@@ -153,7 +153,7 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                     ON u.id = c.commentator_id
 
                 WHERE c.deleted_at IS NULL
-                AND c.post_id = %1
+                AND c.post_id = $1
                 ORDER BY
                     ${sortColumn} ${sqlSortDirection},
                     id ASC

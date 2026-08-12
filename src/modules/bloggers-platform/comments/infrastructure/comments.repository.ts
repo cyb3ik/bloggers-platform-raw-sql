@@ -60,9 +60,9 @@ export class CommentsRepository implements BaseRepository<Comment> {
                     c.post_id,
                     c.content,
                     c.commentator_id,
-                    u.login AS user_login
-                    created_at,
-                    deleted_at
+                    u.login AS user_login,
+                    c.created_at,
+                    c.deleted_at
                 FROM comments c
                 INNER JOIN users u
                     ON u.id = p.commentator_id
