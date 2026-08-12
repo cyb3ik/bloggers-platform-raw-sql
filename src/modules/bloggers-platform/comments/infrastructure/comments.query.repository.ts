@@ -174,7 +174,9 @@ export class CommentsQueryRepository implements ICommentsQueryRepository {
                         COUNT(*) AS "totalCount"
                     FROM comments
                     WHERE deleted_at IS NULL
-                `
+                    AND post_id = $1
+                `,
+                [postId]
             )
 
         const totalCount = Number(countResult[0]?.totalCount ?? 0)

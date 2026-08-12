@@ -183,7 +183,9 @@ export class PostsQueryRepository implements IPostsQueryRepository {
                         COUNT(*) AS "totalCount"
                     FROM posts
                     WHERE deleted_at IS NULL
-                `
+                    AND blog_id = $1
+                `,
+                [blogId]
             )
 
         const totalCount = Number(countResult[0]?.totalCount ?? 0)
