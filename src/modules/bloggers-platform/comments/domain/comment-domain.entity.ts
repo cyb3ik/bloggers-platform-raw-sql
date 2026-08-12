@@ -12,7 +12,7 @@ export class Comment {
     private commentatorInfo: CommentatorInfo
     private postId: string
     private createdAt: Date
-    private deletedAt: Date
+    private deletedAt: Date | null = null
 
     constructor(dto: RawCommentData) {
         this.id = dto.id
